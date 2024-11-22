@@ -1,0 +1,2 @@
+# fast_admin
+基于fastapi和umi以及antd开发的一个用户系统
