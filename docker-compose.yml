@@ -45,3 +45,13 @@ services:
       - ./data/redis/:/data/
     depends_on:
       - mysql
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: selfadmin-watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --cleanup --interval 1800 selfadmin
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
