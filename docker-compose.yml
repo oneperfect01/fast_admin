@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: selfadmin-mysql
+    restart: always
+    environment:
+      TZ: Asia/Shanghai # 指定时区
+      MYSQL_ROOT_PASSWORD: opaochat  # MySQL root 用户密码
+      MYSQL_DATABASE: selfadmin           # 自动创建的数据库名称
+      MYSQL_USER: oneperfect               # 新建的用户
+      MYSQL_PASSWORD: opaochat           # 新建用户的密码
+    # ports:
+    #   - "43306:3306"  # 如果不需要外部访问，可以省略此行
+    volumes:
+      - ./data/mysql:/var/lib/mysql  # 持久化数据库数据
+      - ./data/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=caching_sha2_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+
+  selfadmin:
+    image: registry.cn-hongkong.aliyuncs.com/oneperfect/selfadmin:latest
+    container_name: selfadmin
+    restart: always
+    ports:
+      - 41800:8000
+    volumes:
+      # - .config.json:/app/api/config.json
+      - .env:/app/.env
+      - ./data:/app/data
+    environment:
+      TZ: Asia/Shanghai # 指定时区
+    depends_on:
+      - mysql
+      - redis
+
+  redis:
+    image: redis
+    container_name: selfadmin-redis
+    # command: --requirepass "12345678" # redis库密码,不需要密码注释本行
+    restart: always
+    environment:
+      TZ: Asia/Shanghai # 指定时区
+    volumes:
+      - ./data/redis/:/data/
+    depends_on:
+      - mysql
